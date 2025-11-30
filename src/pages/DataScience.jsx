@@ -259,7 +259,7 @@ const DataScience = () => {
             <>
               {/* DETECTED IMAGE */}
               <img
-                src={`${BACKEND_URL}/${yoloResult.download_url}`}
+                src={`${BACKEND_URL}${yoloResult.download_url}`}
                 className="img-fluid rounded shadow mb-4"
                 style={{ border: "2px solid white" }}
                 alt="Detection"
@@ -357,7 +357,7 @@ const DataScience = () => {
               {/* DOWNLOAD BUTTON */}
               <div className="text-center mt-4">
                 <a
-                  href={`${BACKEND_URL}/${yoloResult.download_url}`}
+                  href={`${BACKEND_URL}${yoloResult.download_url}`}
                   className="btn btn-success px-4"
                   download
                 >
