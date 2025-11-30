@@ -74,7 +74,7 @@ const DataScience = () => {
     formData.append("sunHours", sunHours);
 
     try {
-      const response = await fetch(`${BACKEND_URL}/analyze/`, {
+      const response = await fetch(`${BACKEND_URL}/`, {
         method: "POST",
         body: formData,
       });
