@@ -14,8 +14,8 @@ const DataScience = () => {
   const [sunHours, setSunHours] = useState(5);
   const [fileName, setFileName] = useState("No file chosen");
 
-  // Backend URL
-  const BACKEND_URL = "https://energy-project-backend-ol3t.onrender.com";
+  // Backend URL (ALWAYS include trailing slash)
+  const BACKEND_URL = "https://energy-project-backend-ol3t.onrender.com/";
 
   const pageStyle = {
     background: "linear-gradient(135deg, #003d7a, #0059b3, #007bff, #4dabf7)",
@@ -74,15 +74,15 @@ const DataScience = () => {
     formData.append("sunHours", sunHours);
 
     try {
-      const response = await fetch(`${BACKEND_URL}/`, {
+      const response = await fetch(BACKEND_URL, {
         method: "POST",
-        body: formData, // No headers required
+        body: formData,
       });
 
       if (!response.ok) {
         const text = await response.text();
         console.error("Server Error:", text);
-        alert("Backend error occurred. Check logs.");
+        alert("Backend error occurred. Check backend logs.");
         setLoading(false);
         return;
       }
@@ -148,7 +148,7 @@ const DataScience = () => {
           <h2 className="fw-bold text-center mb-4">✨ Solar Panel Input</h2>
 
           <div className="row g-4">
-            {/* LEFT FORM */}
+            {/* Left Form */}
             <div className="col-md-6">
               <label className="fw-bold mb-1">📍 Location</label>
               <select
@@ -183,7 +183,6 @@ const DataScience = () => {
               />
 
               <label className="fw-bold mb-2">🖼 Upload Image</label>
-
               <div
                 className="d-flex align-items-center p-2 shadow-sm mb-4"
                 style={{
@@ -200,9 +199,7 @@ const DataScience = () => {
                   style={{ position: "absolute", inset: 0, opacity: 0 }}
                 />
 
-                <button className="btn btn-light btn-sm fw-bold me-2">
-                  Choose File
-                </button>
+                <button className="btn btn-light btn-sm fw-bold me-2">Choose File</button>
 
                 <span>{fileName}</span>
               </div>
@@ -223,7 +220,7 @@ const DataScience = () => {
               </div>
             </div>
 
-            {/* RIGHT VIDEO */}
+            {/* Right Video */}
             <div className="col-md-6 mt-4">{RightSideContent}</div>
           </div>
         </div>
@@ -233,8 +230,10 @@ const DataScience = () => {
 
   // ------------------ STEP 3 ------------------
   const Step3 = () => {
+    if (!yoloResult) return null;
+
     const maxEnergy = capacity * sunHours;
-    const totalLoss = yoloResult?.summary?.total_daily_loss_kwh || 0;
+    const totalLoss = yoloResult.summary.total_daily_loss_kwh;
     const finalEnergy = maxEnergy - totalLoss;
 
     const pieData = [
@@ -253,153 +252,116 @@ const DataScience = () => {
             📊 Solar Panel Energy Loss Analysis
           </h2>
 
-          {yoloResult && (
-            <>
-              {/* RESULT IMAGE */}
-              <img
-                src={`${BACKEND_URL}${yoloResult.download_url}`}
-                className="img-fluid rounded shadow mb-4"
-                style={{ border: "2px solid white" }}
-                alt="Detection"
-              />
+          {/* Result Image */}
+          <img
+            src={`${BACKEND_URL}${yoloResult.download_url}`}
+            className="img-fluid rounded shadow mb-4"
+            style={{ border: "2px solid white" }}
+            alt="Detection"
+          />
 
-              {/* PIE CHART */}
-              <div className="text-center">
-                <PieChart width={350} height={350}>
-                  <Pie
-                    data={pieData}
-                    innerRadius={100}
-                    outerRadius={140}
-                    paddingAngle={4}
-                    dataKey="value"
+          {/* Pie Chart */}
+          <div className="text-center">
+            <PieChart width={350} height={350}>
+              <Pie
+                data={pieData}
+                innerRadius={100}
+                outerRadius={140}
+                paddingAngle={4}
+                dataKey="value"
+              >
+                {pieData.map((entry, index) => (
+                  <Cell key={index} fill={COLORS[index]} />
+                ))}
+              </Pie>
+            </PieChart>
+          </div>
+
+          {/* Panel Breakdown */}
+          <h4 className="fw-bold mt-4 mb-3">🟦 Panel-wise Breakdown</h4>
+
+          {yoloResult.panel_analysis.map((panel, idx) => (
+            <div key={idx} className="mb-5">
+              <div className="row g-4">
+                {/* Left Column */}
+                <div className="col-md-6">
+                  <div
+                    className="p-3 rounded shadow"
+                    style={{ background: "rgba(255,255,255,0.18)" }}
                   >
-                    {pieData.map((entry, index) => (
-                      <Cell key={index} fill={COLORS[index]} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </div>
+                    <h5 className="fw-bold mb-3">Panel {panel.panel_number}</h5>
 
-              {/* PANEL-WISE DETAILS */}
-              <h4 className="fw-bold mt-4 mb-3">🟦 Panel-wise Breakdown</h4>
-
-              {yoloResult.panel_analysis.map((panel, idx) => (
-                <div key={idx} className="mb-5">
-                  <div className="row g-4">
-                    {/* Left Column */}
-                    <div className="col-md-6">
-                      <div
-                        className="p-3 rounded shadow"
-                        style={{ background: "rgba(255,255,255,0.18)" }}
-                      >
-                        <h5 className="fw-bold mb-3">
-                          Panel {panel.panel_number}
-                        </h5>
-
-                        {panel.faults_left.length > 0 ? (
-                          panel.faults_left.map((f, i) => (
-                            <div
-                              key={i}
-                              className="p-3 mb-3 rounded"
-                              style={{
-                                background: "rgba(0,0,0,0.25)",
-                              }}
-                            >
-                              <p>
-                                <b>Fault:</b> {f.fault}
-                              </p>
-                              <p>
-                                <b>Confidence:</b>{" "}
-                                {(f.confidence * 100).toFixed(1)}%
-                              </p>
-                              <p>
-                                <b>Affected:</b> {f.affected_area}%
-                              </p>
-                              <p>
-                                <b>Loss %:</b> {f.loss_percentage}%
-                              </p>
-                              <p className="text-warning fw-bold">
-                                🌞 Daily Loss: {f.daily_loss} kWh
-                              </p>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="alert alert-success">
-                            ✔ No visible faults
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Right Column */}
-                    <div className="col-md-6">
-                      <div
-                        className="p-3 rounded shadow"
-                        style={{ background: "rgba(255,255,255,0.18)" }}
-                      >
-                        <h5 className="fw-bold mb-3">More Details</h5>
-
-                        {panel.faults_right.length > 0 ? (
-                          panel.faults_right.map((f, i) => (
-                            <div
-                              key={i}
-                              className="p-3 mb-3 rounded"
-                              style={{
-                                background: "rgba(0,0,0,0.25)",
-                              }}
-                            >
-                              <p>
-                                <b>Fault:</b> {f.fault}
-                              </p>
-                              <p>
-                                <b>Confidence:</b>{" "}
-                                {(f.confidence * 100).toFixed(1)}%
-                              </p>
-                              <p>
-                                <b>Affected:</b> {f.affected_area}%
-                              </p>
-                              <p>
-                                <b>Loss %:</b> {f.loss_percentage}%
-                              </p>
-                              <p className="text-warning fw-bold">
-                                🌞 Daily Loss: {f.daily_loss} kWh
-                              </p>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="alert alert-success">
-                            ✔ No additional faults
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="text-center mt-3">
-                    <div
-                      className="p-3 rounded shadow d-inline-block"
-                      style={{ background: "rgba(255,255,255,0.20)" }}
-                    >
-                      <h4 className="fw-bold text-white mb-0">
-                        ⚡ Panel Loss {panel.panel_loss_kwh} kWh
-                      </h4>
-                    </div>
+                    {panel.faults_left.length > 0 ? (
+                      panel.faults_left.map((f, i) => (
+                        <div
+                          key={i}
+                          className="p-3 mb-3 rounded"
+                          style={{ background: "rgba(0,0,0,0.25)" }}
+                        >
+                          <p><b>Fault:</b> {f.fault}</p>
+                          <p><b>Confidence:</b> {(f.confidence * 100).toFixed(1)}%</p>
+                          <p><b>Affected:</b> {f.affected_area}%</p>
+                          <p><b>Loss %:</b> {f.loss_percentage}%</p>
+                          <p className="text-warning fw-bold">🌞 Daily Loss: {f.daily_loss} kWh</p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="alert alert-success">✔ No visible faults</div>
+                    )}
                   </div>
                 </div>
-              ))}
 
-              {/* DOWNLOAD BUTTON */}
-              <div className="text-center mt-4">
-                <a
-                  href={`${BACKEND_URL}${yoloResult.download_url}`}
-                  className="btn btn-success px-4"
-                  download
-                >
-                  Download Annotated Image
-                </a>
+                {/* Right Column */}
+                <div className="col-md-6">
+                  <div
+                    className="p-3 rounded shadow"
+                    style={{ background: "rgba(255,255,255,0.18)" }}
+                  >
+                    <h5 className="fw-bold mb-3">More Details</h5>
+
+                    {panel.faults_right.length > 0 ? (
+                      panel.faults_right.map((f, i) => (
+                        <div
+                          key={i}
+                          className="p-3 mb-3 rounded"
+                          style={{ background: "rgba(0,0,0,0.25)" }}
+                        >
+                          <p><b>Fault:</b> {f.fault}</p>
+                          <p><b>Confidence:</b> {(f.confidence * 100).toFixed(1)}%</p>
+                          <p><b>Affected:</b> {f.affected_area}%</p>
+                          <p><b>Loss %:</b> {f.loss_percentage}%</p>
+                          <p className="text-warning fw-bold">🌞 Daily Loss: {f.daily_loss} kWh</p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="alert alert-success">✔ No additional faults</div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </>
-          )}
+
+              <div className="text-center mt-3">
+                <div
+                  className="p-3 rounded shadow d-inline-block"
+                  style={{ background: "rgba(255,255,255,0.20)" }}
+                >
+                  <h4 className="fw-bold text-white mb-0">
+                    ⚡ Panel Loss {panel.panel_loss_kwh} kWh
+                  </h4>
+                </div>
+              </div>
+            </div>
+          ))}
+
+          <div className="text-center mt-4">
+            <a
+              href={`${BACKEND_URL}${yoloResult.download_url}`}
+              className="btn btn-success px-4"
+              download
+            >
+              Download Annotated Image
+            </a>
+          </div>
 
           <div className="text-center mt-4">
             <button
