@@ -74,9 +74,9 @@ const DataScience = () => {
     formData.append("sunHours", sunHours);
 
     try {
-      const response = await fetch(BACKEND_URL, {
+      const response = await fetch(`${BACKEND_URL}/`, {
         method: "POST",
-        body: formData, // IMPORTANT: No headers
+        body: formData, // No headers required
       });
 
       if (!response.ok) {
@@ -200,16 +200,24 @@ const DataScience = () => {
                   style={{ position: "absolute", inset: 0, opacity: 0 }}
                 />
 
-                <button className="btn btn-light btn-sm fw-bold me-2">Choose File</button>
+                <button className="btn btn-light btn-sm fw-bold me-2">
+                  Choose File
+                </button>
 
                 <span>{fileName}</span>
               </div>
 
               <div className="d-flex justify-content-between mt-4">
-                <button className="btn btn-outline-light px-4" onClick={() => setStep(1)}>
+                <button
+                  className="btn btn-outline-light px-4"
+                  onClick={() => setStep(1)}
+                >
                   ← Back
                 </button>
-                <button className="btn btn-light px-4 fw-bold" onClick={runYOLO}>
+                <button
+                  className="btn btn-light px-4 fw-bold"
+                  onClick={runYOLO}
+                >
                   {loading ? "Processing..." : "Analyze →"}
                 </button>
               </div>
@@ -241,7 +249,9 @@ const DataScience = () => {
         <div className="mx-auto" style={{ ...glassCard, maxWidth: "900px" }}>
           <ProgressSteps />
 
-          <h2 className="text-center fw-bold mb-4">📊 Solar Panel Energy Loss Analysis</h2>
+          <h2 className="text-center fw-bold mb-4">
+            📊 Solar Panel Energy Loss Analysis
+          </h2>
 
           {yoloResult && (
             <>
@@ -278,50 +288,101 @@ const DataScience = () => {
                   <div className="row g-4">
                     {/* Left Column */}
                     <div className="col-md-6">
-                      <div className="p-3 rounded shadow" style={{ background: "rgba(255,255,255,0.18)" }}>
-                        <h5 className="fw-bold mb-3">Panel {panel.panel_number}</h5>
+                      <div
+                        className="p-3 rounded shadow"
+                        style={{ background: "rgba(255,255,255,0.18)" }}
+                      >
+                        <h5 className="fw-bold mb-3">
+                          Panel {panel.panel_number}
+                        </h5>
 
                         {panel.faults_left.length > 0 ? (
                           panel.faults_left.map((f, i) => (
-                            <div key={i} className="p-3 mb-3 rounded" style={{ background: "rgba(0,0,0,0.25)" }}>
-                              <p><b>Fault:</b> {f.fault}</p>
-                              <p><b>Confidence:</b> {(f.confidence * 100).toFixed(1)}%</p>
-                              <p><b>Affected:</b> {f.affected_area}%</p>
-                              <p><b>Loss %:</b> {f.loss_percentage}%</p>
-                              <p className="text-warning fw-bold">🌞 Daily Loss: {f.daily_loss} kWh</p>
+                            <div
+                              key={i}
+                              className="p-3 mb-3 rounded"
+                              style={{
+                                background: "rgba(0,0,0,0.25)",
+                              }}
+                            >
+                              <p>
+                                <b>Fault:</b> {f.fault}
+                              </p>
+                              <p>
+                                <b>Confidence:</b>{" "}
+                                {(f.confidence * 100).toFixed(1)}%
+                              </p>
+                              <p>
+                                <b>Affected:</b> {f.affected_area}%
+                              </p>
+                              <p>
+                                <b>Loss %:</b> {f.loss_percentage}%
+                              </p>
+                              <p className="text-warning fw-bold">
+                                🌞 Daily Loss: {f.daily_loss} kWh
+                              </p>
                             </div>
                           ))
                         ) : (
-                          <div className="alert alert-success">✔ No visible faults</div>
+                          <div className="alert alert-success">
+                            ✔ No visible faults
+                          </div>
                         )}
                       </div>
                     </div>
 
                     {/* Right Column */}
                     <div className="col-md-6">
-                      <div className="p-3 rounded shadow" style={{ background: "rgba(255,255,255,0.18)" }}>
+                      <div
+                        className="p-3 rounded shadow"
+                        style={{ background: "rgba(255,255,255,0.18)" }}
+                      >
                         <h5 className="fw-bold mb-3">More Details</h5>
 
                         {panel.faults_right.length > 0 ? (
                           panel.faults_right.map((f, i) => (
-                            <div key={i} className="p-3 mb-3 rounded" style={{ background: "rgba(0,0,0,0.25)" }}>
-                              <p><b>Fault:</b> {f.fault}</p>
-                              <p><b>Confidence:</b> {(f.confidence * 100).toFixed(1)}%</p>
-                              <p><b>Affected:</b> {f.affected_area}%</p>
-                              <p><b>Loss %:</b> {f.loss_percentage}%</p>
-                              <p className="text-warning fw-bold">🌞 Daily Loss: {f.daily_loss} kWh</p>
+                            <div
+                              key={i}
+                              className="p-3 mb-3 rounded"
+                              style={{
+                                background: "rgba(0,0,0,0.25)",
+                              }}
+                            >
+                              <p>
+                                <b>Fault:</b> {f.fault}
+                              </p>
+                              <p>
+                                <b>Confidence:</b>{" "}
+                                {(f.confidence * 100).toFixed(1)}%
+                              </p>
+                              <p>
+                                <b>Affected:</b> {f.affected_area}%
+                              </p>
+                              <p>
+                                <b>Loss %:</b> {f.loss_percentage}%
+                              </p>
+                              <p className="text-warning fw-bold">
+                                🌞 Daily Loss: {f.daily_loss} kWh
+                              </p>
                             </div>
                           ))
                         ) : (
-                          <div className="alert alert-success">✔ No additional faults</div>
+                          <div className="alert alert-success">
+                            ✔ No additional faults
+                          </div>
                         )}
                       </div>
                     </div>
                   </div>
 
                   <div className="text-center mt-3">
-                    <div className="p-3 rounded shadow d-inline-block" style={{ background: "rgba(255,255,255,0.20)" }}>
-                      <h4 className="fw-bold text-white mb-0">⚡ Panel Loss {panel.panel_loss_kwh} kWh</h4>
+                    <div
+                      className="p-3 rounded shadow d-inline-block"
+                      style={{ background: "rgba(255,255,255,0.20)" }}
+                    >
+                      <h4 className="fw-bold text-white mb-0">
+                        ⚡ Panel Loss {panel.panel_loss_kwh} kWh
+                      </h4>
                     </div>
                   </div>
                 </div>
@@ -341,7 +402,10 @@ const DataScience = () => {
           )}
 
           <div className="text-center mt-4">
-            <button className="btn btn-outline-light px-4" onClick={() => setStep(2)}>
+            <button
+              className="btn btn-outline-light px-4"
+              onClick={() => setStep(2)}
+            >
               ← Back
             </button>
           </div>
@@ -350,7 +414,11 @@ const DataScience = () => {
     );
   };
 
-  return <div style={pageStyle}>{step === 1 ? <Step1 /> : step === 2 ? <Step2 /> : <Step3 />}</div>;
+  return (
+    <div style={pageStyle}>
+      {step === 1 ? <Step1 /> : step === 2 ? <Step2 /> : <Step3 />}
+    </div>
+  );
 };
 
 export default DataScience;
