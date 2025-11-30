@@ -14,11 +14,11 @@ const DataScience = () => {
   const [sunHours, setSunHours] = useState(5);
   const [fileName, setFileName] = useState("No file chosen");
 
+  // Backend URL
   const BACKEND_URL = "https://energy-project-backend-ol3t.onrender.com";
 
   const pageStyle = {
-    background:
-      "linear-gradient(135deg, #003d7a, #0059b3, #007bff, #4dabf7)",
+    background: "linear-gradient(135deg, #003d7a, #0059b3, #007bff, #4dabf7)",
     minHeight: "100vh",
     paddingTop: "150px",
     paddingBottom: "70px",
@@ -58,7 +58,7 @@ const DataScience = () => {
     </div>
   );
 
-  // --------------------------- RUN YOLO ---------------------------
+  // ------------------ RUN YOLO API ------------------
   const runYOLO = async () => {
     if (!imageFile) {
       alert("Please upload an image first.");
@@ -74,9 +74,9 @@ const DataScience = () => {
     formData.append("sunHours", sunHours);
 
     try {
-      const response = await fetch(`${BACKEND_URL}/`, {
+      const response = await fetch(BACKEND_URL, {
         method: "POST",
-        body: formData,
+        body: formData, // IMPORTANT: No headers
       });
 
       if (!response.ok) {
@@ -90,7 +90,6 @@ const DataScience = () => {
       const data = await response.json();
       setYoloResult(data);
       setStep(3);
-
     } catch (err) {
       console.error("Fetch Error:", err);
       alert("Unable to connect to backend.");
@@ -99,7 +98,7 @@ const DataScience = () => {
     setLoading(false);
   };
 
-  // --------------------------- STEP 1 ---------------------------
+  // ------------------ STEP 1 ------------------
   const Step1 = () => (
     <div className="container text-white">
       <div className="mx-auto text-center" style={{ ...glassCard, maxWidth: "750px" }}>
@@ -108,8 +107,8 @@ const DataScience = () => {
         </h1>
 
         <p>
-          This AI system analyzes your solar panel image, detects dust, cracks, snow,
-          bird drops and calculates exact energy loss.
+          Upload your solar panel image — AI detects cracks, dust, snow, bird
+          drops and calculates energy loss.
         </p>
 
         <button
@@ -122,16 +121,18 @@ const DataScience = () => {
     </div>
   );
 
-  // --------------------------- STEP 2 ---------------------------
+  // ------------------ STEP 2 ------------------
   const Step2 = () => {
-
-    const RightSideContent = useMemo(() => (
-      <div className="ratio ratio-16x9 rounded shadow-lg">
-        <video controls style={{ width: "100%", borderRadius: "12px" }}>
-          <source src="/Video/solar.mp4" type="video/mp4" />
-        </video>
-      </div>
-    ), []);
+    const RightSideContent = useMemo(
+      () => (
+        <div className="ratio ratio-16x9 rounded shadow-lg">
+          <video controls style={{ width: "100%", borderRadius: "12px" }}>
+            <source src="/Video/solar.mp4" type="video/mp4" />
+          </video>
+        </div>
+      ),
+      []
+    );
 
     const handleFileChange = useCallback((e) => {
       const file = e.target.files[0];
@@ -142,16 +143,13 @@ const DataScience = () => {
     return (
       <div className="container text-white">
         <div className="mx-auto" style={{ ...glassCard, maxWidth: "980px" }}>
-          
           <ProgressSteps />
 
           <h2 className="fw-bold text-center mb-4">✨ Solar Panel Input</h2>
 
           <div className="row g-4">
-
-            {/* LEFT SIDE FORM */}
+            {/* LEFT FORM */}
             <div className="col-md-6">
-
               <label className="fw-bold mb-1">📍 Location</label>
               <select
                 className="form-select p-3 shadow-sm mb-3"
@@ -193,7 +191,7 @@ const DataScience = () => {
                   background: "rgba(255,255,255,0.2)",
                   border: "1px solid rgba(255,255,255,0.35)",
                   position: "relative",
-                  cursor: "pointer"
+                  cursor: "pointer",
                 }}
               >
                 <input
@@ -202,9 +200,7 @@ const DataScience = () => {
                   style={{ position: "absolute", inset: 0, opacity: 0 }}
                 />
 
-                <button className="btn btn-light btn-sm fw-bold me-2">
-                  Choose File
-                </button>
+                <button className="btn btn-light btn-sm fw-bold me-2">Choose File</button>
 
                 <span>{fileName}</span>
               </div>
@@ -217,30 +213,25 @@ const DataScience = () => {
                   {loading ? "Processing..." : "Analyze →"}
                 </button>
               </div>
-
             </div>
 
-            {/* RIGHT SIDE VIDEO */}
-            <div className="col-md-6 mt-4">
-              {RightSideContent}
-            </div>
-
+            {/* RIGHT VIDEO */}
+            <div className="col-md-6 mt-4">{RightSideContent}</div>
           </div>
         </div>
       </div>
     );
   };
 
-  // --------------------------- STEP 3 ---------------------------
+  // ------------------ STEP 3 ------------------
   const Step3 = () => {
-
     const maxEnergy = capacity * sunHours;
     const totalLoss = yoloResult?.summary?.total_daily_loss_kwh || 0;
     const finalEnergy = maxEnergy - totalLoss;
 
     const pieData = [
       { name: "Usable Energy", value: finalEnergy },
-      { name: "Energy Loss", value: totalLoss }
+      { name: "Energy Loss", value: totalLoss },
     ];
 
     const COLORS = ["#00d99b", "#ff5252"];
@@ -248,16 +239,13 @@ const DataScience = () => {
     return (
       <div className="container text-white">
         <div className="mx-auto" style={{ ...glassCard, maxWidth: "900px" }}>
-
           <ProgressSteps />
 
-          <h2 className="text-center fw-bold mb-4">
-            📊 Solar Panel Energy Loss Analysis
-          </h2>
+          <h2 className="text-center fw-bold mb-4">📊 Solar Panel Energy Loss Analysis</h2>
 
           {yoloResult && (
             <>
-              {/* DETECTED IMAGE */}
+              {/* RESULT IMAGE */}
               <img
                 src={`${BACKEND_URL}${yoloResult.download_url}`}
                 className="img-fluid rounded shadow mb-4"
@@ -282,31 +270,25 @@ const DataScience = () => {
                 </PieChart>
               </div>
 
-              {/* PANELWISE DETAILS */}
+              {/* PANEL-WISE DETAILS */}
               <h4 className="fw-bold mt-4 mb-3">🟦 Panel-wise Breakdown</h4>
 
               {yoloResult.panel_analysis.map((panel, idx) => (
                 <div key={idx} className="mb-5">
-
                   <div className="row g-4">
-
-                    {/* LEFT CARD */}
+                    {/* Left Column */}
                     <div className="col-md-6">
-                      <div className="p-3 rounded shadow"
-                        style={{ background: "rgba(255,255,255,0.18)" }}>
+                      <div className="p-3 rounded shadow" style={{ background: "rgba(255,255,255,0.18)" }}>
                         <h5 className="fw-bold mb-3">Panel {panel.panel_number}</h5>
 
                         {panel.faults_left.length > 0 ? (
                           panel.faults_left.map((f, i) => (
-                            <div key={i} className="p-3 mb-3 rounded"
-                              style={{ background: "rgba(0,0,0,0.25)" }}>
+                            <div key={i} className="p-3 mb-3 rounded" style={{ background: "rgba(0,0,0,0.25)" }}>
                               <p><b>Fault:</b> {f.fault}</p>
                               <p><b>Confidence:</b> {(f.confidence * 100).toFixed(1)}%</p>
                               <p><b>Affected:</b> {f.affected_area}%</p>
                               <p><b>Loss %:</b> {f.loss_percentage}%</p>
-                              <p className="text-warning fw-bold">
-                                🌞 Daily Loss: {f.daily_loss} kWh
-                              </p>
+                              <p className="text-warning fw-bold">🌞 Daily Loss: {f.daily_loss} kWh</p>
                             </div>
                           ))
                         ) : (
@@ -315,23 +297,19 @@ const DataScience = () => {
                       </div>
                     </div>
 
-                    {/* RIGHT CARD */}
+                    {/* Right Column */}
                     <div className="col-md-6">
-                      <div className="p-3 rounded shadow"
-                        style={{ background: "rgba(255,255,255,0.18)" }}>
+                      <div className="p-3 rounded shadow" style={{ background: "rgba(255,255,255,0.18)" }}>
                         <h5 className="fw-bold mb-3">More Details</h5>
 
                         {panel.faults_right.length > 0 ? (
                           panel.faults_right.map((f, i) => (
-                            <div key={i} className="p-3 mb-3 rounded"
-                              style={{ background: "rgba(0,0,0,0.25)" }}>
+                            <div key={i} className="p-3 mb-3 rounded" style={{ background: "rgba(0,0,0,0.25)" }}>
                               <p><b>Fault:</b> {f.fault}</p>
                               <p><b>Confidence:</b> {(f.confidence * 100).toFixed(1)}%</p>
                               <p><b>Affected:</b> {f.affected_area}%</p>
                               <p><b>Loss %:</b> {f.loss_percentage}%</p>
-                              <p className="text-warning fw-bold">
-                                🌞 Daily Loss: {f.daily_loss} kWh
-                              </p>
+                              <p className="text-warning fw-bold">🌞 Daily Loss: {f.daily_loss} kWh</p>
                             </div>
                           ))
                         ) : (
@@ -339,18 +317,13 @@ const DataScience = () => {
                         )}
                       </div>
                     </div>
-
                   </div>
 
                   <div className="text-center mt-3">
-                    <div className="p-3 rounded shadow d-inline-block"
-                      style={{ background: "rgba(255,255,255,0.20)" }}>
-                      <h4 className="fw-bold text-white mb-0">
-                        ⚡ Panel Loss {panel.panel_loss_kwh} kWh
-                      </h4>
+                    <div className="p-3 rounded shadow d-inline-block" style={{ background: "rgba(255,255,255,0.20)" }}>
+                      <h4 className="fw-bold text-white mb-0">⚡ Panel Loss {panel.panel_loss_kwh} kWh</h4>
                     </div>
                   </div>
-
                 </div>
               ))}
 
@@ -368,22 +341,16 @@ const DataScience = () => {
           )}
 
           <div className="text-center mt-4">
-            <button
-              className="btn btn-outline-light px-4"
-              onClick={() => setStep(2)}
-            >
+            <button className="btn btn-outline-light px-4" onClick={() => setStep(2)}>
               ← Back
             </button>
           </div>
-
         </div>
       </div>
     );
   };
 
-  return <div style={pageStyle}>
-    {step === 1 ? <Step1 /> : step === 2 ? <Step2 /> : <Step3 />}
-  </div>;
+  return <div style={pageStyle}>{step === 1 ? <Step1 /> : step === 2 ? <Step2 /> : <Step3 />}</div>;
 };
 
 export default DataScience;
