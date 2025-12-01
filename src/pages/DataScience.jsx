@@ -82,7 +82,7 @@ const DataScience = () => {
       if (!response.ok) {
         const text = await response.text();
         console.error("Server Error:", text);
-        alert("Backend error occurred. Check backend logs.");
+        alert("Backend error occurred. Check backend backend logs.");
         setLoading(false);
         return;
       }
@@ -148,7 +148,7 @@ const DataScience = () => {
           <h2 className="fw-bold text-center mb-4">✨ Solar Panel Input</h2>
 
           <div className="row g-4">
-            {/* Left Form */}
+            {/* left Form */}
             <div className="col-md-6">
               <label className="fw-bold mb-1">📍 Location</label>
               <select
